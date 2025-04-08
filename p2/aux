@@ -1,1 +1,144 @@
+corte de control
+proceso mediante el cul la informacion de un archivo es presentada de forma organizada de acuerdo a la estructura que posee el archivo
+se almacena en un archivo la informacion de ventas de una cadena de electrodomestcos, dichas ventas han sido efectuadas por los vendedores de cada sucursal de cada ciudad de cada provincia de todo el pais
+
+provinca:
+ciudad:
+sucursal:
+monto total vendido por cada unode sus vendedores
+monto totalde la sucursal
+
+total ciudad:
+
+total provincia:
+ 
+total empresa:
+
+
+el archivo de ventas esta ordenado por tres criterios: por prov{por ciudad: {por sucursal: }}}}
+
+en diferentes provincias pueden existir ciudades con el mismo nombre, y en diferentes ciudades pueden existir sucursales con igual denominacion.
+
+program ejemplo;
+
+const 
+valorAto = 'ZZZ';
+type
+  nombre:string[40];
+  venta = record
+    vendedor:integer;
+    monto:real;
+    sucursal:nombre;
+    ciudad:nombre;
+    provincia:nombre
+end;
+ventas = file of venta;
+
+procedure leer (var ar:ventas; var v:venta);
+begin
+  if not eof(ar) then
+    read(ar,v)
+  else
+    v.provincia = valorAlto;
+end;
+
+procedure corteControl(ar:ventas);
+var  
+  rgv:venta;
+  total,totProv,totCiu,totSuc:real;
+  prov,ciudad,sucursal:nombre;
+begin
+  reset(ar);
+  leer(ar,rgv);
+  total:=0;
+  while(rgv.provincia <> valorAlto)do begin
+    writeln('provincia: ',rgv.provincia);
+    prov:= rgp.provincia;
+    totProv:=0;
+    while(prov = rgv.provincia)do begin
+      ciudad:= rgv.ciudad;
+      writeln('ciudad: ',ciudad);
+      totCiudad:=0;
+      while(prov = rgv.provincia & ciudad = rgv.ciudad)do begin
+        sucursal:= rgv.sucursal;
+        writeln('sucursal: ',sucursal);
+        totSuc:=0;
+        while(rgv.provincia = provincia & rgv.ciudad = ciudad & rgv.sucursal = sucursal ) do begin
+          totSuc:=totSuc+rgv.monto;
+          writeln('vendedo: ',rgv.vendedor);
+          leer(ar,rgv);
+        end;
+        writeln('total suc: ',totSuc);
+        totCiudad:= totCiudad + totSuc;
+      end;
+      writeln('total ciu: ',totCiudad);
+      totProv:= totProv + totCiudad;
+    end;
+    writeln('total provincia: ',totProv);
+    total:= total + totProv;
+  end;
+  writeln('Total empresa: ',total);
+end;
+var 
+  ar:ventas;
+begin
+  assign(ar,'arventas.dat');
+  
+end;
+
+merge: 
+proceso mediante el cual se genera un nuevo archivo a partir de otros archivos existentes.
+
+archivos existentes, tengan una misma estructura, mismos registros detalle, esten ordenados por el mismo criterio.
+sol donde no hay productos repetidas.
+
+program ejemplo;
+const 
+  valorAlto = 999999;
+type
+  producto = record
+    codigo:lonInt;
+    descripcion:string;
+    precioUn:real;
+    cant:integer;
+  end;
+
+procedure leer();
+begin
+end;
+
+procedure minimo();
+begin
+end;
+
+var 
+  det1,det2,det3,mar: productos;
+  min,reg1,reg2,reg3: producto;
+begin
+ assign()x4
+ rewrite(mae);
+ reset(dealles);
+ leer(detalles);
+ minimo(det1,det2,det3,r1,r2,r3,min);
+ while(min.codigo <> valoAlto)do begin
+   write(mae,min);
+   minimo(det1,det2,det3,r1,r2,r3,min);
+  end;
+  close();x4
+end;     
+//aguante estudiantes estudiooooooooooo
+
+solucion con productos repetidos
+
+while(min.codigo dist valorAlto)do begin
+  aux:==min;
+  total:=0;
+  while(min.codigo = aux.codigo) dobegin
+    total:= total + min.cant;
+    minimo();
+  end;
+  aux.cant:=total;
+  write(mae,aux);
+end;
+
 
