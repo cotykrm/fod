@@ -15,6 +15,7 @@ puede venir 0 o N registros de un determinado producto}
 program ejercicio4;
 const
   valorAlto = 9999;
+  det = 3;
 type
   producto = record
     codigo:integer;
@@ -32,7 +33,8 @@ type
   
   maestro = file of producto;
   detalle = file of venta;
-  detalles = array [1..30] of detalle;
+  detalles = array [1..det] of detalle;
+  ventas = array [1..det] of venta;
   
 procedure leerProducto(var p:producto);
 begin
@@ -83,14 +85,14 @@ procedure armarDetalles(var d:detalles);
 var
   i:integer;
 begin
-  for i:= 1 to 30 do
+  for i:= 1 to det do
     crearArchivoD(d[i]);
 end;
 
 procedure imprimirVenta(v:venta);
 begin
   writeln('codigo: ',v.codigo);
-  writeln('cantidad vedida: ',v.cv);
+  writeln('cantidad vendida: ',v.cv);
 end;
 
 procedure imprimirDet(var ar:detalle);
@@ -109,8 +111,34 @@ procedure imprimirDetalles(d:detalles);
 var
   i:integer;
 begin
-  for i:=1 to 30 do 
+  for i:=1 to det do begin
+    writeln('detalle nro ',i);
+    writeln('-------------------------');
     imprimirDet(d[i]);
+    writeln('-------------------------');
+  end;
+end;
+
+procedure imprimirProducto(p:producto);
+begin
+  writeln('código: ',p.codigo);
+  writeln('nombre: ',p.nombre);
+  writeln('descripción: ',p.descripcion); 
+  writeln('stock disponible: ',p.stockD); 
+  writeln('stock mínimo: ',p.stockM); 
+  writeln('precio: ',p.precio);
+end;
+
+procedure imprimirMaestro(var m:maestro);
+var
+  p:producto;
+begin
+  reset(m);
+  while(not eof(m))do begin
+    read(m,p);
+    imprimirProducto(p);
+  end;
+  close(m);
 end;
 
 procedure leer(var ar:detalle; var v:venta);
@@ -121,18 +149,107 @@ begin
     v.codigo:= valorAlto;
 end;
 
-procedure minimo(d:detalles; var min:detalle);
+procedure minimo(d:detalles; var min:venta; var rd:ventas);
 var
-  minC,i:integer; v:venta;
+  minC,i,minI:integer; 
 begin
-  minC:=-1;
-  for i:=1 to 30 do begin
-    leer(d[i],v);
-    if(v.codigo<minC)then
-      minC:=i;
+  minC:=valorAlto;
+  for i:=1 to det do begin
+    if(rd[i].codigo<minC)then begin
+      minC:=rd[i].codigo;
+      minI:= i;
+    end;
   end;
-  min:=d[i];
-  leer()
-    
+  if minC<>valorAlto then begin
+    min:=rd[minI];
+    leer(d[minI],rd[minI]);
+  end
+  else
+    min.codigo:= valorAlto;
+end;
 
+procedure leerDetalles(d:detalles; var rd:ventas);
+var
+  i:integer;
+begin
+  for i:=1 to det do
+    leer(d[i],rd[i]);
+end;
 
+procedure actualizar(var m:maestro; d:detalles);
+var 
+  i:integer; min:venta; p:producto; rd:ventas;
+begin
+  reset(m);
+  for i:=1 to det do 
+    reset(d[i]);
+  leerDetalles(d,rd); 
+  minimo(d,min,rd);
+  while(min.codigo<>valorAlto)do begin
+    read(m,p);
+    while(min.codigo<>p.codigo)do
+      read(m,p);
+    while(min.codigo = p.codigo)do begin
+      p.stockD:= p.stockD - min.cv;
+      minimo(d,min,rd);
+    end;
+    seek(m,filePos(m)-1);
+    write(m,p);
+  end;
+  close(m);
+  for i:=1 to det do
+    close(d[i]);
+end;
+
+{ Además, se deberá informar en un archivo de texto: nombre de producto,
+descripción, stock disponible y precio de aquellos productos que tengan stock disponible por
+debajo del stock mínimo.}
+
+procedure crearInforme(var m:maestro; var informe:text);
+var
+  p:producto;
+begin
+  reset(m);
+  rewrite(informe);
+  while(not eof(m))do begin
+    read(m,p);
+    if(p.stockD<p.stockM)then begin
+      writeln(informe,p.nombre);
+      writeln(informe,p.stockD, p.precio,p.descripcion);
+    end;
+  end;
+  close(m);
+  close(informe);
+end;
+
+var
+  m:maestro; d:detalles; informe:text;
+begin
+  assign(m,'maestro4.dat');
+  assign(informe,'informe.txt');
+  {for i:=1 to det do begin
+    assign(d[i],'detalle.dat');
+    crearArchivoD(d[i]);
+  end;}
+  writeln('crear detalle 1');
+  assign(d[1],'detalle1.dat');
+  crearArchivoD(d[1]);
+  writeln('crear detalle 2');
+  assign(d[2],'detalle2.dat');
+  crearArchivoD(d[2]);
+  writeln('crear detalle 3');
+  assign(d[3],'detalle3.dat');
+  crearArchivoD(d[3]);
+  writeln('crear maestro');
+  crearArchivoM(m);
+  writeln('-------------------------');
+  writeln('detalles: ');
+  imprimirDetalles(d);
+  writeln('-------------------------');
+  actualizar(m,d);
+  writeln('-------------------------');
+  writeln('maestro: ');
+  writeln('-------------------------');
+  imprimirMaestro(m);
+  crearInforme(m,informe);
+end.
