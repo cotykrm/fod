@@ -98,7 +98,6 @@ begin
     seek(ar, filePos(ar) - 1); // Volver a la posición libre
     write(ar, nn); // Escribir la nueva novela en la posición libre
     seek(ar, 0); // Volver al registro cabecera
-    n.codigo := libre; // Actualizar la cabecera con el siguiente espacio libre
     write(ar, n); // Escribir la nueva cabecera
   end
   else begin
@@ -142,57 +141,27 @@ registro en la posición 8 debe copiarse el antiguo registro cabecera.}
 
 procedure darBaja(var ar:archivo);
 var 
-  n, cabecera: novela; 
-  cod, libre: integer;
+    n,cabecera:novela; cod,libre:integer
 begin
-  reset(ar);
-  writeln('ingrese el codigo de novela a bajar: ');
-  readln(cod);
-  read(ar, cabecera); // Leer la cabecera
-  while (not eof(ar)) do begin
-    read(ar, n);
-    if (n.codigo = cod) then begin
-      // Encontrado el registro a eliminar
-      libre := filePos(ar) - 1; // Obtener la posición actual
-      n.codigo := cabecera.codigo; // Enlazar el registro eliminado con la cabecera
-      seek(ar, libre); // Volver a la posición del registro eliminado
-      write(ar, cabecera); // Escribir la cabecera en la posición eliminada
-      seek(ar, 0); // Volver al inicio del archivo
-      cabecera.codigo := -libre; // Actualizar la cabecera con la nueva posición libre
-      write(ar, cabecera); // Escribir la nueva cabecera
-      writeln('novela dada de baja correctamente.');
-      close(ar);
-      exit;
-    end;
-  end;
-  writeln('codigo de novela no encontrado, no se pudo dar de baja.');
-  close(ar);
-end;
-
-{procedure darBaja(var ar:archivo);
-var 
-  n,cabecera:novela; cod,libre:integer;
-begin
-  reset(ar);
   writeln('ingrese el codigo de novela a bajar: ');
   readln(cod);
   read(ar,n);
   while(not eof(ar)) and (n.codigo<>cod)do
     read(ar,n);
   if(not eof(ar))then begin
-    libre:= (filePos(ar)-1)*(-1);
+    libre:= filePos(ar)-1;
     n.codigo:= libre;
     seek(ar,0);
     read(ar,cabecera);
-    seek(ar,(cabecera.codigo)*(-1));
-    write(ar,cabecera);
-    seek(ar,0);
+    seek(ar,filePos(ar)-1);
     write(ar,n);
+    seek(ar,cabecera.codigo*(-1));
+    write(ar,cabecera);
   end
   else
     writeln('codigo de novela no encotrado, no se pudo der de baja.');
   close(ar);
-end;}
+end;
 procedure mantenimiento(var ar:archivo);
 var
   eleccion:integer;
@@ -209,53 +178,21 @@ begin
   end;
 end;
 
-procedure imprimirNovela(n:novela);
-begin
-  writeln('codigo de novela: ',n.codigo);
-  writeln('genero de novela: ',n.genero);
-  writeln('nombre de novela: ',n.nombre);
-  writeln('duracion de novela: ',n.duracion);
-  writeln('director de novela: ',n.director);
-  writeln('precio de novela: ',n.precio);
-end;
-
-procedure imprimirArchivo(var ar:archivo);
-var
-  n:novela;
-begin
-  reset(ar);
-  read(ar,n);
-  while(not eof(ar))do begin
-    if(n.codigo>0)then
-      imprimirNovela(n);
-    read(ar,n);  
-  end;
-
-  close(ar);
-end;    
-
 var
   ar:archivo; nombre:string; eleccion:integer;
 begin
   writeln('ingrese el nombre del archivo'); 
   readln(nombre);
   assign(ar,nombre);
-  writeln('ingrese 1 para crear un archivo.');
+  writeln('ingrese 1 crear un archivo.');
   writeln('ingrese 2 para abrir el archivo existente y permitir su mantenimiento.');
-  writeln('ingrese 3 para abrir el archivo existente e imprimirlo.');
-  writeln('ingrese 0 para salir.');
   readln(eleccion);
   while(eleccion<>0)do begin
     case eleccion of
       1:crearArchivo(ar);
       2:mantenimiento(ar);
-      3:imprimirArchivo(ar);
       otherwise writeln('el numero ingresado no es correcto.');
     end;
-    writeln('ingrese 1 crear un archivo.');
-    writeln('ingrese 2 para abrir el archivo existente y permitir su mantenimiento.');
-    writeln('ingrese 3 para abrir el archivo existente e imprimirlo.');
-    writeln('ingrese 0 para salir.');
     readln(eleccion);
   end;
 end.
