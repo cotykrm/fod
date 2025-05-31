@@ -1,0 +1,439 @@
+clase 4 - Corte de control
+proceso mediante el cual la informacion de un archivo es presentada de forma organizada de acuerdo a la estructura que posee el archivo
+se almacena en un archivo la informacion de ventas de una cadena de electrodomestcos, dichas ventas han sido efectuadas por los vendedores de cada sucursal de cada ciudad de cada provincia de todo el pais
+
+provinca:
+ciudad:
+sucursal:
+monto total vendido por cada unode sus vendedores
+monto totalde la sucursal
+
+total ciudad:
+
+total provincia:
+ 
+total empresa:
+
+
+el archivo de ventas esta ordenado por tres criterios: por prov{por ciudad: {por sucursal: }}
+
+en diferentes provincias pueden existir ciudades con el mismo nombre, y en diferentes ciudades pueden existir sucursales con igual denominacion.
+
+program ejemplo;
+
+const 
+valorAto = 'ZZZ';
+type
+  nombre:string[40];
+  venta = record
+    vendedor:integer;
+    monto:real;
+    sucursal:nombre;
+    ciudad:nombre;
+    provincia:nombre
+end;
+ventas = file of venta;
+
+procedure leer (var ar:ventas; var v:venta);
+begin
+  if not eof(ar) then
+    read(ar,v)
+  else
+    v.provincia = valorAlto;
+end;
+
+procedure corteControl(ar:ventas);
+var  
+  rgv:venta;
+  total,totProv,totCiu,totSuc:real;
+  prov,ciudad,sucursal:nombre;
+begin
+  reset(ar);
+  leer(ar,rgv);
+  total:=0;
+  while(rgv.provincia <> valorAlto)do begin
+    writeln('provincia: ',rgv.provincia);
+    prov:= rgp.provincia;
+    totProv:=0;
+    while(prov = rgv.provincia)do begin
+      ciudad:= rgv.ciudad;
+      writeln('ciudad: ',ciudad);
+      totCiudad:=0;
+      while(prov = rgv.provincia and ciudad = rgv.ciudad)do begin
+        sucursal:= rgv.sucursal;
+        writeln('sucursal: ',sucursal);
+        totSuc:=0;
+        while(rgv.provincia = provincia and rgv.ciudad = ciudad and rgv.sucursal = sucursal ) do begin
+          totSuc:=totSuc+rgv.monto;
+          writeln('vendedo: ',rgv.vendedor);
+          leer(ar,rgv);
+        end;
+        writeln('total suc: ',totSuc);
+        totCiudad:= totCiudad + totSuc;
+      end;
+      writeln('total ciu: ',totCiudad);
+      totProv:= totProv + totCiudad;
+    end;
+    writeln('total provincia: ',totProv);
+    total:= total + totProv;
+  end;
+  writeln('Total empresa: ',total);
+  close(ar);
+end;
+var 
+  ar:ventas;
+begin
+  assign(ar,'arventas.dat');
+  corteControl(ar);
+end;
+
+-------------------------------------------------------------------------------------------------------------------
+clase 5 - Merge
+
+merge: 
+proceso mediante el cual se genera un nuevo archivo a partir de otros archivos existentes.
+
+archivos existentes, tengan una misma estructura, mismos registros detalle, esten ordenados por el mismo criterio.
+solucion donde no hay productos repetidos.
+
+program ejemplo;
+const 
+  valorAlto = 999999;
+type
+  producto = record
+    codigo:lonInt;
+    descripcion:string;
+    precioUn:real;
+    cant:integer;
+  end;
+
+procedure leer();
+begin
+end;
+
+procedure minimo();
+begin
+end;
+
+var 
+  det1,det2,det3,mar: productos;
+  min,reg1,reg2,reg3: producto;
+begin
+ assign()x4
+ rewrite(mae);
+ reset(dealles);
+ leer(detalles);
+ minimo(det1,det2,det3,r1,r2,r3,min);
+ while(min.codigo <> valoAlto)do begin
+   write(mae,min);
+   minimo(det1,det2,det3,r1,r2,r3,min);
+  end;
+  close();x4
+end;     
+//aguante estudiantes estudiooooooooooo
+
+solucion con productos repetidos
+
+while(min.codigo <> valorAlto)do begin
+  aux:=min;
+  total:=0;
+  while(min.codigo = aux.codigo) dobegin
+    total:= total + min.cant;
+    minimo();
+  end;
+  aux.cant:=total;
+  write(mae,aux);
+end;
+
+------------------------------------------------
+clase 6 - Archivos - bajas
+
+una baja es una eliminacion logica o fisica, quitar informacion de un archivo
+archivos desordenados
+
+baja fisica:
+consiste en borrar efectivamente la informacion del archivo, recuperando el espacio fisico.
+ventaja: en todo momento, se administra un archivo de datos que ocupa el minimo lugar posible
+desventaja: performance de los algoritmos que implementan estas soluiciones.
+costosa,creo otro archivo con los elementos que quiero
+mandar todos los elementos que nosirven al final y borrar el final,corro riesgo de borrar informacion util.
+
+- se ausme una sola ocurrencia, en mas ocurrencias es un solo while que controle el final, y dentro, un if 
+que controle el reg particular.
+
+begin  
+  assign(ar,'emple');
+  asign(arN,'emple_nuevos');
+  reset(ar);
+  rewrite(arN);
+  leer(ar,reg);
+  while(reg dist 'el que quiero borrar') do begin  
+    write(arN,reg);
+    leer(ar,reg);
+  end;
+  leer(ar,reg);
+  while(reg.nombre dist valoAlto) do begin
+    write(arN,reg);
+    leer(ar,reg);
+  end;
+  close(ar);
+  close(arN);
+  rename(ar,'empleOld);
+  rename(arN,'emple');
+end;
+
+- otro
+
+se recorre el archivo, mientras que no sea el que busco
+cambio el ultimo por el buscado, se trunca el ultimo
+muevo la marca de eof
+
+si se quiere borrar mas de uno debo contar cuantos movi al final para saber en que posicion intercambiar.
+
+baja logica
+consiste en borrar la informacion del archivo pero sin recuperar el espacio fisico respectivo.
+se indica con alguna marca que el registro "ya no es interesante"
+
+ejermplo
+begin
+  assign(ar,'enmple');
+  reset(ar);
+  leer(ar,reg);
+  while(reg dist buscado)do
+    leer(ar,reg);
+  reg.nombre:= '***';
+  seek(ar,fliePos(ar)-1);
+  write(ar,reg);
+  close(ar);
+end;
+
+ para saber el buscado reg.nombre[1]:= @;
+ para eliminarlo se hace un for de 2 a len y hago un corrimieto de cada char;
+ r.campo := '@' + r.campo;
+ 
+
+tecnicas
+recuperacion de espacio:
+Se utiliza el proceso de baja física periódicamente para realizar un proceso de compactación del archivo.
+Quita los registros marcados como eliminados, utilizando cualquiera de los algoritmos vistos para baja física.
+
+reasignacion de espacio:
+Recupera el espacio utilizando los lugares indicados como eliminados para el ingreso de nuevos elementos al 
+archivo (altas).
+
+registro cabecera: guarda la proxima posicion a reubicar,
+0 = no hay marcados, se ubica al final
+-nrr =|nrr| la pos a ubicar
+
+para un alta, tomo el valor de la cabecera, insserto el dato nuevo, y guardo el nrr de marca en la cabecera,
+
+-------------------------------------------------------------------------------------
+clase 7 - Arboles B
+son arboles multicamino con una construccion esoecia en forma ascendente, que permite mantenerlos balanceados.
+
+propiedades de un arbol b de orden m:
+Cada nodo del árbol puede contener como máximo M descendientes directos (hijos) y M-1 elementos.
+La raíz no posee descendientes directos o tiene al menos dos.
+Un nodo con X descendientes directos contiene X-1 elementos.
+Todos los nodos (salvo la raíz) tienen como mínimo [M/2] – 1 elementos y como máximo M-1 elementos.
+Todos los nodos terminales se encuentran al mismo nivel.
+cada nodo tiene sus elementoss ordenados por clave
+ademas, cada nodo tiene sus elementos en el subarbol izquierdo de un elemento, son menores o iguales 
+que dicho elemento, mientras que todos los elementos en el subarbol derecho son mayores a este elemento
+*orden: cantidad de hijos que puede tener cada nodo.
+
+son eficientes para las busquedas,
+sirven para organizar el archivo de datos como un árbol B
+sirven para organizar el archivo índice un árbol B
+cuanto mayor es el orden del arbol
+
+archivos de datos como arbol B
+
+const M = … ; {orden del árbol}
+type
+TDato = record
+  codigo: longint;
+  nombre: string[50];
+end; 
+	TNodo = record
+		cant_datos:	integer; //cant datos del nodo (dimension logica)
+		datos: array[1..M-1] of TDato; //contiene los registros de empleados
+		hijos: array[1..M] of integer;  //contiene las posiciones que ocupan los nodos hijos dentro del archivo
+	end;
+	arbolB = file of TNodo;	
+var
+		archivoDatos: arbolB;
+
+Archivo índice como árbol B
+(como las claves ocupan menos que los registros con el dato completo, el arbol guarda indices asi puede 
+tener por cada nodo, mas hijos, y puede almacenar la misma cantidad de datos pero sin tanta profundidad)
+
+const M = … ; {orden del árbol}
+type
+TDato = record
+  codigo: longint;
+  nombre: string[50];
+end; 
+	TNodo = record
+		cant_claves:	integer;
+		claves: array[1..M-1] of longint;
+		enlaces: array [1..M-1] of integer;
+		hijos: array[1..M] of integer;
+	end;
+	TArchivoDatos  = file of TDato;
+	arbolB = file of TNodo;	
+var
+		archivoDatos: TArchivoDatos;
+		archivoIndice: arbolB;
+
+altas
+
+Overflow(cuando no entran mas registros en el nodo)
+
+Se crea un nuevo nodo.
+La primera mitad de las claves se mantiene en el nodo con overflow.
+La segunda mitad de las claves se traslada al nuevo nodo.
+La menor de las claves de la segunda mitad se promociona al nodo padre.
+
+
+bajas
+
+se busca desde la raiz, la clave que hay que dar de baja, aprovechado la busqueda ordenada
+preguntar si al eliminar la clave, sigue cumpliendo la propiedad de tener minimo una clave 
+por nodo si esta en un nodo interno: se debe llevar la clave a una hoja y eliminarla, para 
+mantener el balance del arbol, si en la hoja queda en underflow, se debe resolver
+
+se intenta redistribuir o se fusionan 
+se intercamba por la clave menor del subarbol derecho 
+
+
+-------------------------------------------------------------------------------------------------------------------
+clase 8 - Arboles B+
+
+todos los datos reales estan en los nodos terminales, para que estyo sirva, deberia tener las hojas conectadas entre si.
+
+- Constituyen una mejora sobre los árboles B, pues conservan la propiedad de acceso aleatorio rápido 
+y permiten además un recorrido secuencial rápido. 
+- Conjunto índice(nodos internos, contienen copias de las claves de las hojas): Proporciona acceso indizado 
+a los registros. Todas las claves se encuentran en las hojas, duplicándose en la raíz y nodos interiores 
+aquellas que resulten necesarias para definir los caminos de búsqueda.
+- Conjunto secuencia(coleccion de nodos hojas): Contiene todos los registros del archivo. Las hojas se vinculan 
+para facilitar el recorrido secuencial rápido. Cuando se lee en orden lógico, lista todos los registros por 
+el orden de la clave.
+
+para hacer un recorrdido secuencial, debo comenzar con el hijo mas izq de la lista de hojas, 
+es una estructutra que sirve para las busqueda entre rangos
+para la busqueda, debo llegar a las hojas:
+La operación de búsqueda en árboles B+ es similar a la operación de búsqueda en árboles B. 
+El proceso es simple, ya que todas las claves se encuentran en las hojas, deberá continuarse 
+con la búsqueda hasta el último nivel del árbol.
+
+Inserción B+
+Dificultad: Inserción en nodo lleno (overflow).
+El nodo afectado se divide en 2, distribuyéndose las claves lo más equitativamente posible. Una copia de la 
+clave del medio o de la menor de las claves mayores (casos de overflow con cantidad pares de elementos) se 
+promociona al nodo padre. El nodo con overflow se divide a la mitad. 
+
+La copia de la clave sólo se realiza en un overflow ocurrido a nivel de hoja. 
+Caso contrario -> igual tratamiento que en árboles B.
+
+El separador no se tiene en cuenta a la hora de la redistribucion.
+pero el separador es una copia de una clave, esa misma clave tambien tiene que estar en un nodo terminal
+el overflow se puede propagar a la raiz, se crea un nuevo nodo y se reparte equitativamente en el nodo raiz y 
+el nodo nuevo y se promocionauna clave que ya fue copiada
+
+Bajas en B+
+La operación de eliminación en árboles B+ es más simple que en árboles B. Esto ocurre porque las claves a 
+eliminar siempre se encuentran en las páginas hojas. En general deben distinguirse los siguientes casos, 
+dado un árbol B+ de orden M:
+Si al eliminar una clave, la cantidad de claves que queda es mayor o igual que [M/2]-1, entonces termina 
+la operación. Las claves de los nodos raíz o internos no se modifican por más que sean una copia de la 
+clave eliminada en las hojas.
+
+cuando busco un dato y lo encuentro, puede que sea una copia (de un elemento que ya no existe, ya que las 
+copias no se bajan), por lo tanto tengo que seguir hasta encontrar una hoja.
+Políticas para la resolución de underflow:
+Política izquierda: se intenta redistribuir con el hermano adyacente izquierdo, si no es posible, se fusiona 
+con hermano adyacente izquierdo.
+Política derecha: se intenta redistribuir con el hermano adyacente derecho, si no es posible, se fusiona 
+con hermano adyacente derecho.
+Política izquierda o derecha: se intenta redistribuir con el hermano adyacente izquierdo, si no es posible,  
+se intenta con el hermano adyacente derecho, si tampoco es posible, se fusiona con hermano adyacente izquierdo.
+Política derecha o izquierda: se intenta redistribuir con el hermano adyacente derecho, si no es posible,  
+se intenta con el hermano adyacente izquierdo, si tampoco es posible, se fusiona con hermano adyacente derecho.
+
+se promociona una copia de la clave menor (el separador)
+si la redistribucion ocurre en un nodo interno de un arbol B+ se trata como un arbol B.
+cuando se hace una fusion se elimina el separador del nodo padre, por lo tanto se puede propagar el underflow\
+al nodo padre
+en la fusion en nodos internos, junto todos los elementos mas el separador
+
+
+-----------------------------------------------------------------------------------------
+clase 9 - hashing
+- Técnica para generar una dirección base única para una clave dada. 
+- Convierte la clave en un número aleatorio, que luego sirve para determinar dónde se almacena la clave.
+- Utiliza una función de dispersión para mapear cada clave con una dirección física de almacenamiento.
+- Utilizada cuando se requiere acceso rápido por clave.
+
+tipos de dispersion
+
+- Direccionamiento estático
+  El espacio disponible para dispersar los registros del archivo está fijado previamente.
+
+- Direccionamiento dinámico
+  El espacio disponible para dispersar los registros del archivo aumenta o disminuye en función de las necesidades.
+
+Parámetros a considerar
+Parámetros que influyen sobre el desempeño del ambiente de dispersión:
+- Capacidad de almacenamiento de cada dirección
+- Densidad de empaquetamiento
+- Función de hash
+- Método de tratamiento de desbordes
+
+Función de dispersión
+Caja negra que a partir de una clave genera la dirección física donde debe almacenarse el registro.
+
+Colisión
+Situación en la que un registro es asignado, por función de dispersión, a una dirección que ya posee 
+uno o más registros.
+
+Desborde
+Situación en la cual una clave carece de lugar en la dirección asignada por la función de dispersión.
+
+Densidad de empaquetamiento
+Relación entre el espacio disponible para el archivo de datos y la cantidad de registros que integran el mismo. 
+
+DE = numero de registros/espacio total
+
+Aunque la función de dispersión sea eficiente y la densidad de empaquetamiento sea baja, es probable que ocurran desbordes.
+Métodos aplicables para resolver colisiones con desborde en dispersión estática:
+Saturación progresiva = usar el espacio que sigue
+Saturación progresiva encadenada = usar el espacio que sigue y enlazar 
+Saturación progresiva con área de desborde por separado
+Dispersión doble = se le vuelve a aplicar otra funcion
+
+tecnica de resoluciones - Hashing extensible
+
+claves a dispersar:
+1- colapinto 1011001100
+2- verstappen 1110101000
+3- Russell 1010001001
+4- stroll 1010101010
+5- alonso 1010001000
+6- hamilton 1001001011
+7- salnz 1010001111
+8- leclerc 1010100111
+
+se tiene en cuenta el bit menos significativo para dispersar
+
+estado inicial del archivo
+--------------------------------------------------------------
+|     tabla de dispercion     |
+|    Bits de dispersion: 0    |
+|-----------------------------|
+|    subfijo   |  #bloques    | 
+|              |              |
+|              |              |
+|     (0)      |      0       |
+-------------------------------
