@@ -24,7 +24,7 @@ Var
 
 para ambos se debe usar assign() para asignar nombre, reset() para abrir, rewrite() para escribir y close() para cerrar
 en los archivos de datos se utiliza read y write, para leer y escribir respectivamente
-en los archivos de texto se utilizan readln y writeln, el primer argumento va a ser la variables
+en los archivos de texto se utilizan readln y writeln
 readln(v,n1,n2,n3...); el primer argumento va a ser el archivo 
 y los nx son las variables donde se van a guardar los datos de la linea del archivo, cada n va a ser un dato de la misma linea,
 los datos por linea estan separados por espacios
@@ -156,7 +156,7 @@ clase 4 - Corte de control
 proceso mediante el cual la informacion de un archivo es presentada de forma organizada de acuerdo a la estructura que posee el archivo
 se almacena en un archivo la informacion de ventas de una cadena de electrodomestcos, dichas ventas han sido efectuadas por los vendedores de cada sucursal de cada ciudad de cada provincia de todo el pais
 
-provinca:
+provincia:
 ciudad:
 sucursal:
 monto total vendido por cada unode sus vendedores
@@ -828,7 +828,7 @@ si la redistribucion ocurre en un nodo interno de un arbol B+ se trata como un a
 cuando se hace una fusion se elimina el separador del nodo padre, por lo tanto se puede propagar el underflow\
 al nodo padre
 en la fusion en nodos internos, junto todos los elementos mas el separador
-
+En la fusión se elimina siempre el hermano derecho
 
 -----------------------------------------------------------------------------------------
 clase 9 - hashing
