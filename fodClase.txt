@@ -1,3 +1,157 @@
+clase 1 y 2
+
+Archivos de datos y Archivos de texto
+- Bloques de bytes (File)
+- Texto(Text): Caracteres estructurados en líneas.
+Lectura/escritura con conversión automática de tipos.
+El acceso es exclusivamente secuencial. 
+Útiles para importar y exportar datos.
+
+Type
+  tRegistroVotos=Record
+    codProv: integer;
+    codLoc: integer;
+    nroMesa: integer;
+    cantVotos: integer;
+    desc:String;
+  end;
+  tArchVotos=File of tRegistroVotos;
+Var
+  opc: Byte;
+  nomArch, nomArch2: String;
+  arch: tArchVotos;
+  carga: Text { archivo de texto con datos de los votos, se lee de el y se genera archivo binario.}
+
+para ambos se debe usar assign() para asignar nombre, reset() para abrir, rewrite() para escribir y close() para cerrar
+en los archivos de datos se utiliza read y write, para leer y escribir respectivamente
+en los archivos de texto se utilizan readln y writeln, el primer argumento va a ser la variables
+readln(v,n1,n2,n3...); el primer argumento va a ser el archivo 
+y los nx son las variables donde se van a guardar los datos de la linea del archivo, cada n va a ser un dato de la misma linea,
+los datos por linea estan separados por espacios
+writeln(v,n1,' ',n2,' ',n3,' ',...); el primer argumento va a ser el archivo
+y los nx son las variables que se van a guardar en esa linea del archivo, como el espacio es separador,
+si se debe poner un dato de tipo String o char en el archivo, se hace a lo ultimo de la linea
+
+Case opc of (leer de archivo de texto a binario)
+  1: begin
+    Write('Nombre del archivo de carga: ');
+    ReadLn(nomArch2);
+    Assign(carga, nomArch2);
+    Reset(carga); {abre archivo de texto con datos}
+    Rewrite(arch); {crea nuevo archivo binario}
+    while (not eof(carga)) do begin
+    ReadLn(carga,votos.codProv,votos.codLoc,
+    votos.nroMesa,votos.cantVotos,votos.desc); {lectura del
+    archivo de texto}
+    Write(arch, votos); {escribe binario}
+    end;
+    Write('Archivo cargado.');
+    ReadLn;
+    Close(arch); Close(carga); {cierra los dos archivos}
+  end;
+
+{Opcion 2 exporta el contenido del binario a un texto}
+  2: begin
+    Write('Nombre del archivo de texto: ');
+    ReadLn(nomArch2);
+    Assign(carga, nomArch2);
+    Reset(arch); {abre archivo binario}
+    Rewrite(carga); {crea archivo de texto, se utiliza el mismo de opcion 1 a modo ejemplo}
+    while (not eof(arch)) do begin
+    Read(arch, votos); {lee votos del arch binario}
+    WriteLn(carga,votos.codProv,’ ‘,votos.codLoc,’ ‘,
+    votos.nroMesa,’ ‘,votos.cantVotos,’ ‘,votos.desc); {escribe en el archivo texto los campos separados por el carácter blanco}
+    end;
+    Close(arch); Close(carga);
+  end;
+
+clase 3 - Maestro/Detalle
+Archivo maestro: Resume información sobre el dominio de un problema específico.
+Ejemplo: El archivo de productos de una empresa.
+Archivo detalle: Contiene movimientos realizados sobre la información almacenada en el maestro.
+Ejemplo: archivo conteniendo las ventas sobre esos productos
+
+Importante: Analizar las precondiciones de cada caso particular.
+Los algoritmos a desarrollar deben tener en cuenta estas precondiciones,
+caso contrario determina la falla de su ejecución.
+
+Actualización de un archivo maestro con un
+archivo detalle 9
+• Existe un archivo maestro.
+• Existe un único archivo detalle que modifica al
+maestro.
+• Cada registro del detalle modifica a un registro del
+maestro que seguro existe.
+•No todos los registros del maestro son
+necesariamente modificados.
+• Cada elemento del archivo maestro puede no ser
+modificado, o ser modificado por uno o más
+elementos del detalle.
+•Ambos archivos están ordenados por igual criterio.
+
+const 
+    valoralto = 'ZZZZ';
+type    
+    str4 = string[4];
+    producto = record
+        cod: str4;
+        descripcion: string[30];
+        pu: real;
+        stock: integer;
+    end;
+    venta_prod = record
+        cod: str4;
+        cant_vendida: integer;
+    end;
+    detalle = file of venta_prod;
+    maestro = file of producto; 
+
+procedure leer( var archivo: detalle; var dato: venta_prod);
+begin
+    if (not(EOF(archivo))) then
+        read (archivo, dato)
+    else
+        dato.cod := valoralto;
+end;
+
+var
+    mae: maestro; regm: producto;
+    det: detalle; regd: venta_prod;
+    total: integer; aux: str4;
+begin
+    assign(mae, 'maestro');
+    assign(det, 'detalle');
+    reset(mae);
+    reset(det);
+    read(mae, regm);
+    leer(det, regd);
+    {Se procesan todos los registros del archivo detalle}
+    while (regd.cod <> valoralto) do begin
+        aux := regd.cod;
+        total := 0;
+        {Se totaliza la cantidad vendida de productos iguales en el archivo de detalle}
+        while (aux = regd.cod) do begin
+            total := total + regd.cant_vendida;
+            leer(det, regd);
+        end;
+        {se busca el producto del detalle en el maestro}
+        while (regm.cod <> aux) do
+            read (mae, regm);
+        {se modifica el stock del producto con la cantidad total vendida de ese producto}
+        regm.stock := regm.stock – total;
+        {se reubica el puntero en el maestro}
+        seek(mae, filepos(mae)-1);
+        {se actualiza el maestro}
+        write(mae, regm);
+        {se avanza en el maestro}
+        if (not(EOF(mae))) then
+            read(mae, regm);
+    end;
+    close(det);
+    close(mae);
+end
+
+
 clase 4 - Corte de control
 proceso mediante el cual la informacion de un archivo es presentada de forma organizada de acuerdo a la estructura que posee el archivo
 se almacena en un archivo la informacion de ventas de una cadena de electrodomestcos, dichas ventas han sido efectuadas por los vendedores de cada sucursal de cada ciudad de cada provincia de todo el pais
@@ -107,8 +261,14 @@ type
     cant:integer;
   end;
 
-procedure leer();
+  productos = file of producto;
+
+procedure leer(var ar:productos; var p:producto);
 begin
+  if(not eof(ar))then
+    read(ar,p)
+  else
+    p.codigo := valorAlto;
 end;
 
 procedure minimo();
@@ -144,6 +304,257 @@ while(min.codigo <> valorAlto)do begin
   aux.cant:=total;
   write(mae,aux);
 end;
+
+--------------------------------------------------------------------------------------------
+
+Merge con n detalles
+
+const
+  valorAlto = 9999;
+  df = n;
+type
+  f = record
+    dia:integer;
+    mes:integer;
+    ano:integer;
+  end;
+  logs = record
+    codigo:integer;
+    fecha:f;
+    tiempo_sesion:real;
+  end;
+  
+  logsT = record
+    codigo:integer;
+    fecha:f;
+    tiempo_total:real;
+  end;
+  
+  maestro = file of logsT;
+  detalle = file of logs;
+  
+  detalles = array [1..df] of detalle;
+  registros = array [1..df] of logs;
+
+procedure leer(var ar:detalle; var l:logs);
+begin
+  if(not eof(ar))then
+    read(ar,l)
+  else
+    l.codigo:= valorAlto;
+end;
+
+procedure leerDetalles(d:detalles; var r:registros);
+var
+  i:integer;
+begin
+  for i:=1 to df do
+    leer(d[i],r[i]);
+end;
+
+procedure minimo(d:detalles; var min:logs; var r:registros);
+var
+  minC,i,pos:integer; 
+begin
+  minC:=9999;
+  for i:=1 to df do begin
+    if(r[i].codigo<=minc)then begin
+      min:= r[i];
+      pos:=i;
+      minC:=min.codigo;
+    end;
+  end;
+  if min.codigo<>valorAlto then
+    leer(d[pos],r[pos]);
+end;
+
+procedure merge(var m:maestro; d:detalles);
+var
+  i:integer; min:logs; aux:logsT; r:registros; total:real;
+begin
+  rewrite(m);
+  for i:= 1 to df do
+    reset(d[i]);
+  leerDetalles(d,r);
+  minimo(d,min,r);
+  while(min.codigo <> valorAlto)do begin
+    aux.codigo:=min.codigo;
+    aux.fecha:= min.fecha;
+    total:=0;
+    while(min.codigo = aux.codigo) do begin
+      total:= total + min.tiempo_sesion;
+      minimo(d,min,r);
+    end;
+    aux.tiempo_total:=total;
+    write(m,aux);
+  end;
+  for i:= 1 to df do
+    close(d[i]);
+  close(m);
+end;
+
+--------------------------------------------------------------------------------------------
+
+Actualizacion
+con 3 o menos detalles
+
+const
+  valorAlto = 'zzz';
+type
+  censos = record
+    provincia:string;
+    personasAlfa:integer;
+    totalEnc:integer;
+  end;
+  
+  censo = record
+    provincia:string;
+    codigoLoc:integer;
+    personasAlfa:integer;
+    cantEnc:integer;
+  end;
+  
+  maestro = file of censos;
+  detalle = file of censo;
+
+
+procedure leer(var ar:detalle; var c:censo);
+begin
+  if(not eof(ar))then
+    read(ar,c)
+  else
+    c.provincia:=valorAlto;
+end;
+
+procedure minimo(var d1,d2:detalle; var r1,r2,min:censo);
+begin
+  if(r1.provincia<=r2.provincia)then begin
+    min:= r1;
+    leer(d1,r1);
+  end
+  else begin
+    min:=r2;
+    leer(d2,r2);
+  end;
+end;
+
+procedure actualizar(var arD1,arD2:detalle; var arM:maestro);
+var
+  d1,d2,min:censo; m1:censos; provincia:string; cantA,cantE:integer; 
+begin
+  reset(arD1);
+  reset(arD2);
+  reset(arM);
+  read(arM,m1);
+  leer(arD1,d1);
+  leer(arD2,d2);
+  minimo(arD1,arD2,d1,d2,min);
+  while(min.provincia<>valorAlto)do begin
+    provincia:= min.provincia;
+    cantA:=0;
+    cantE:=0;
+    while(min.provincia = provincia)do begin
+      cantA:=cantA+min.personasAlfa;
+      cantE:= cantE+min.cantEnc;
+      minimo(arD1,arD2,d1,d2,min);
+    end;
+    while(m1.provincia <> provincia)do
+      read(arM,m1);
+    m1.personasAlfa:=m1.personasAlfa + cantA;
+    m1.totalEnc:= m1.totalEnc + cantE;
+    seek(arM,filePos(arM)-1);
+    if(not eof(arM))then
+      write(arM,m1);
+  end;
+  close(arD1);
+  close(arD2);
+  close(arM);
+end;
+
+--------------------------------------------------------------------------------------
+Actualizacion con n detalles
+
+const
+  valorAlto = 9999;
+  det = 3;
+type
+  producto = record
+    codigo:integer;
+    nombre:string;
+    descripcion:string;
+    stockD:integer;
+    stockM:integer;
+    precio:real;
+  end;
+  
+  venta = record
+    codigo:integer;
+    cv:integer;
+  end;
+  
+  maestro = file of producto;
+  detalle = file of venta;
+  detalles = array [1..det] of detalle;
+  ventas = array [1..det] of venta;
+
+  procedure leer(var ar:detalle; var v:venta);
+begin
+  if(not eof(ar))then
+    read(ar,v)
+  else
+    v.codigo:= valorAlto;
+end;
+
+procedure minimo(d:detalles; var min:venta; var rd:ventas);
+var
+  minC,i,pos:integer; 
+begin
+  minC:=9999;
+  for i:=1 to df do begin
+    if(d[i].codigo<=minc)then begin
+      min:= r[i];
+      pos:=i;
+      minC:=min.codigo;
+    end;
+  end;
+  if min.codigo<>valorAlto then
+    leer(d[pos],rd[pos]);
+end;
+
+
+procedure leerDetalles(d:detalles; var rd:ventas);
+var
+  i:integer;
+begin
+  for i:=1 to det do
+    leer(d[i],rd[i]);
+end;
+
+procedure actualizar(var m:maestro; d:detalles);
+var 
+  i:integer; min:venta; p:producto; rd:ventas;
+begin
+  reset(m);
+  for i:=1 to det do 
+    reset(d[i]);
+  leerDetalles(d,rd); 
+  minimo(d,min,rd);
+  while(min.codigo<>valorAlto)do begin
+    read(m,p);
+    while(min.codigo<>p.codigo)do
+      read(m,p);
+    while(min.codigo = p.codigo)do begin
+      p.stockD:= p.stockD - min.cv;
+      minimo(d,min,rd);
+    end;
+    seek(m,filePos(m)-1);
+    write(m,p);
+  end;
+  close(m);
+  for i:=1 to det do
+    close(d[i]);
+end;
+
 
 ------------------------------------------------
 clase 6 - Archivos - bajas
@@ -217,6 +628,30 @@ recuperacion de espacio:
 Se utiliza el proceso de baja física periódicamente para realizar un proceso de compactación del archivo.
 Quita los registros marcados como eliminados, utilizando cualquiera de los algoritmos vistos para baja física.
 
+procedure darBaja(var ar:archivo);
+var 
+    n,cabecera:novela; cod,libre:integer
+begin
+  writeln('ingrese el codigo de novela a bajar: ');
+  readln(cod);
+  read(ar,n);
+  while(not eof(ar)) and (n.codigo<>cod)do
+    read(ar,n);
+  if(not eof(ar))then begin
+    libre:= filePos(ar)-1;
+    n.codigo:= libre;
+    seek(ar,0);
+    read(ar,cabecera);
+    seek(ar,filePos(ar)-1);
+    write(ar,n);
+    seek(ar,cabecera.codigo*(-1));
+    write(ar,cabecera);
+  end
+  else
+    writeln('codigo de novela no encotrado, no se pudo der de baja.');
+  close(ar);
+end;
+
 reasignacion de espacio:
 Recupera el espacio utilizando los lugares indicados como eliminados para el ingreso de nuevos elementos al 
 archivo (altas).
@@ -226,6 +661,32 @@ registro cabecera: guarda la proxima posicion a reubicar,
 -nrr =|nrr| la pos a ubicar
 
 para un alta, tomo el valor de la cabecera, insserto el dato nuevo, y guardo el nrr de marca en la cabecera,
+
+
+procedure darAlta(var ar:archivo);
+var 
+  nn,n:novela; libre:integer;
+begin
+  reset(ar);
+  leerNovela(nn);
+  read(ar,n);
+  if (n.codigo < 0) then begin
+    // Hay espacio libre en la lista invertida
+    libre := n.codigo * -1; // Obtener la posición libre
+    seek(ar, libre); // Ir a la posición libre
+    read(ar, n); // Leer el registro en la posición libre
+    seek(ar, filePos(ar) - 1); // Volver a la posición libre
+    write(ar, nn); // Escribir la nueva novela en la posición libre
+    seek(ar, 0); // Volver al registro cabecera
+    write(ar, n); // Escribir la nueva cabecera
+  end
+  else begin
+    seek(ar,fileSize(ar));
+    write(ar,nn);
+  end;
+  writeln('novela dada de alta.');
+  close(ar);
+end;
 
 -------------------------------------------------------------------------------------
 clase 7 - Arboles B
