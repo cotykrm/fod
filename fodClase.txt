@@ -771,6 +771,36 @@ se intercamba por la clave menor del subarbol derecho
 -------------------------------------------------------------------------------------------------------------------
 clase 8 - Arboles B+
 
+
+const 
+  M = 43;  // según cálculo anterior
+  max = M - 1;
+type
+  alumno = record
+    nombre:string;
+    apellido:string;
+    dni:integer;
+    legajo:integer;
+    anioIngreso:integer;
+  end;
+
+  clave = record
+    dni:integer;
+    puntero:integer;
+  end;
+
+  nodo = record
+    esHoja:boolean;
+    cant_claves:integer;
+    clavesInternas:array[1..max] of integer;
+    hijos:array [1..M] of integer;
+    hojas:array [1..max] of clave;
+    siguienteHoja:integer;
+  end;
+
+  archivo = file of alumno;
+  archivoIndices= file of nodo;
+
 todos los datos reales estan en los nodos terminales, para que estyo sirva, deberia tener las hojas conectadas entre si.
 
 - Constituyen una mejora sobre los árboles B, pues conservan la propiedad de acceso aleatorio rápido 
